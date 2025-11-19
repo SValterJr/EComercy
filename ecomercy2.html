@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mercadooo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<style>
+/* ===== RESET ===== */
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif; 
+  background:#fff6ee; 
+  color:#222; 
+  transition:.25s;
+}
+
+body.dark{
+  background:#111; 
+  color:#eee;
+}
+
+/* ===== HEADER ===== */
+header{
+  width:100%; 
+  height:70px; 
+  background:#ff7b00; 
+  display:flex; 
+  align-items:center;
+  justify-content:space-between; 
+  padding:0 20px; 
+  position:fixed; 
+  top:0; 
+  z-index:20;
+  box-shadow:0 4px 10px rgba(0,0,0,.12);
+}
+
+.icons {
+  position: relative; 
+}
+
+.icon{
+  color:#fff; 
+  font-size:34px; 
+  cursor:pointer;
+}
+
+.icon:hover{
+  transform:scale(1.06);
+}
+
+/* ===== CONTADOR DO CARRINHO ===== */
+#cart-count{
+  position:absolute; 
+  top:-6px; 
+  right:-10px; 
+  background:#fff; 
+  color:#ff7b00;
+  padding:2px 7px; 
+  border-radius:999px; 
+  font-weight:700; 
+  font-size:12px;
+  min-width:22px; 
+  text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.12);
+}
+
+body.dark #cart-count{ 
+  background:#222; 
+  color:#ffb27a;
+}
+
+/* ===== FILTRO ===== */
+.filtro-box{ 
+  margin-top:90px; 
+  text-align:center; 
+  padding:14px 10px; 
+}
+
+.filtro-box input{
+  width:min(720px,88%); 
+  padding:10px 12px; 
+  border-radius:10px; 
+  border:1px solid #ddd;
+  font-size:16px; 
+  outline:none;
+}
+
+body.dark .filtro-box input{ 
+  background:#222; 
+  color:#eee; 
+  border-color:#333;
+}
+
+/* ===== GRID ===== */
+.main{ 
+  padding:22px; 
+  display:flex; 
+  flex-wrap:wrap; 
+  gap:20px; 
+  justify-content:center;
+  align-items:flex-start;
+  max-width:1200px; 
+  margin:0 auto; 
+}
+
+/* ===== CARD ===== */
+.card{
+  width:300px; 
+  background:#fff; 
+  border-radius:14px; 
+  padding:14px; 
+  box-shadow:0 8px 20px rgba(0,0,0,.06);
+  transition:transform .22s; 
+  overflow:hidden;
+}
+
+body.dark .card{ 
+  background:#222; 
+  color:#ddd; 
+  box-shadow:0 8px 20px rgba(0,0,0,.5); 
+}
+
+.card:hover{ 
+  transform:translateY(-6px); 
+}
+
+.card img{ 
+  width:100%; 
+  height:220px; 
+  object-fit:cover; 
+  border-radius:10px;
+}
+
+.card h2{ 
+  font-size:1.05rem; 
+  margin:8px 0;
+}
+
+.card p{ 
+  color:#555; 
+  font-size:.9rem; 
+  height:54px; overflow:hidden; 
+  text-overflow:ellipsis;
+  margin-bottom:8px; 
+  line-height:1.2;
+}
+
+body.dark .card p{
+  color:#ccc 
+}
+
+.price{ 
+  color:#ff7b00; 
+  font-weight:700; 
+  margin-bottom:8px;
+}
+
+.stars{ 
+  color:#ffb347; 
+  margin-bottom:8px; 
+  font-size:18px; 
+}
+
+.btn-comprar{
+  width:100%; 
+  padding:10px 12px; 
+  border-radius:8px; 
+  border:none; 
+  cursor:pointer;
+  background:#ff7b00; 
+  color:#fff; 
+  font-weight:700; 
+  font-size:15px; 
+  transition:transform .14s;
+}
+
+.btn-comprar:hover{ background:#e46e00 }
+
+/* ===== ANIMAÇÃO CARRINHO ===== */
+.fly {
+  position:fixed; 
+  width:64px; 
+  height:64px; 
+  object-fit:cover; 
+  pointer-events:none;
+  border-radius:10px; 
+  z-index:9999;
+  transition: transform .7s cubic-bezier(.2,.9,.3,1),
+              left .7s cubic-bezier(.2,.9,.3,1),
+              top .7s cubic-bezier(.2,.9,.3,1),
+              opacity .5s;
+  box-shadow:0 10px 20px rgba(0,0,0,.25)
+}
+
+/* ===== MODAL ===== */
+.modal-carrinho{
+  display:none; 
+  position:fixed; 
+  inset:0; 
+  background:rgba(0,0,0,.55);
+  justify-content:center; 
+  align-items:center; 
+  z-index:50;
+}
+
+.modal-carrinho .total{
+  text-align:right; 
+  margin-top:12px; 
+  padding: 20px;
+  font-size:18px;
+}
+
+.modal-content{
+  width:92%; 
+  max-width:420px; 
+  background:#fff; 
+  padding:16px; 
+  border-radius:12px;
+}
+
+body.dark .modal-content{ background:#1f1f1f; color:#eee }
+
+.close-btn{ 
+  float:right; 
+  font-size:24px; 
+  cursor:pointer 
+}
+
+/* ===== ITENS DO CARRINHO ===== */
+#carrinho-itens {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: rgba(255, 123, 0, 0.05);
+  border: 1px solid rgba(255,123,0,0.15);
+}
+
+.carrinho-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+  margin-bottom: 6px;
+  font-size: 0.92rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 8px;
+}
+
+.qtd-controle{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+
+.qtd-controle button{
+  padding:4px 8px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+.btn-qtd{
+  background:#ff7b00;
+  color:#fff;
+  font-weight:bold;
+}
+
+.btn-remove{
+  background:#ff4d4d;
+  color:white;
+}
+
+/* ===== PAGAMENTO ===== */
+.area-pgto{
+  display:flex; 
+  gap:10px; 
+  justify-content:center; 
+  margin-top:20px;
+}
+
+.area-pgto #qrcode-img{
+  width: 220px; 
+  height: 220px;
+  display: none;
+  object-fit: contain; 
+  margin-top: 15px;
+}
+
+input{
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+footer {
+  margin-top: 50px;
+  padding: 25px;
+  background: #ff7b00;
+  text-align: center;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: .5px;
+}
+
+/* RESPONSIVO */
+@media(max-width:720px){
+  .card{ width:92% }
+  .filtro-box input{ width:92% }
+}
+
+.title h1{
+  color:#fff; 
+  font-size:24px; 
+  font-weight:700; 
+}
+
+#map { 
+  align-items: center;
+  justify-content: center;
+  height: 180px; 
+  width: 60%;
+  margin: 20px auto;
+  border-radius: 12px;
+}
+
+
+
+
+</style>
+
+<body>
+
+<header>
+  <div class="icons">
+    <span class="material-symbols-outlined icon" id="home-icon">home</span>
+  </div>
+
+  <div class="title">
+    <h1> Mercadooo  🛒 </h1>
+  </div>
+
+  <div class="icons">
+    <span id="theme-toggle" class="material-symbols-outlined icon">dark_mode</span>
+
+    <span id="abrir-carrinho" class="material-symbols-outlined icon cart-button">
+      shopping_cart
+      <span id="cart-count">0</span>
+    </span>
+  </div>
+</header>
+
+<div class="filtro-box">
+  <input id="filtro" placeholder="Filtrar produtos..." />
+</div>
+
+<main>
+
+  <div class="main" id="produto-card">
+    <!-- Produtos serão carregados aqui -->
+  </div>
+
+   <div id="map"></div>
+
+</main>
+
+<!-- Modal Carrinho -->
+<div id="carrinho-modal" class="modal-carrinho">
+  <div class="modal-content">
+    <span class="close-btn" id="fechar-modal">&times;</span>
+    <h2>Seu Carrinho 🛒</h2>
+    <div id="carrinho-itens"></div>
+    <h3 class="total">Total: R$ <span id="carrinho-total">0.00</span></h3>
+    <button id="finalizar-compra" class="btn-comprar">Finalizar Compra</button>
+  </div>
+</div>
+
+<!-- Modal Pagamento -->
+<div id="pagamento-modal" class="modal-carrinho">
+  <div class="modal-content">
+    <span class="close-btn" id="fechar-pagamento">&times;</span>
+    <h2>Escolha o método de pagamento</h2>
+
+    <div class="area-pgto">
+      <button id="btn-pix" class="btn-comprar">Pagar com PIX</button>
+      <button id="btn-cartao" class="btn-comprar">Pagar com Cartão</button>
+    </div>
+
+    <!-- PIX -->
+    <div id="area-qrcode">
+      <h3>Escaneie o QR Code</h3>
+      <img id="qrcode-img" src="" alt="QR Code">
+    </div>
+
+    <!-- CARTÃO -->
+    <div id="area-cartao">
+      <h3>Pagar com Cartão</h3>
+
+      <input id="card-numero" type="text" maxlength="16" placeholder="Número do cartão (16 dígitos)">
+      <input id="card-nome" type="text" placeholder="Nome no cartão">
+      <input id="card-validade" type="month">
+      <input id="card-cvv" type="text" maxlength="3" placeholder="CVV">
+
+      <button id="pagar-cartao" class="btn-comprar" disabled>Pagar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+/* ========================================================
+   VARIÁVEIS PRINCIPAIS
+======================================================== */
+let carrinho = [];
+let produtosCarregados = [];
+
+/* ========================================================
+   ESTRELAS
+======================================================== */
+function renderStars(rating){
+  let r = Math.round(rating);
+  return '★'.repeat(r) + '☆'.repeat(5-r);
+}
+
+/* ========================================================
+   ATUALIZAR INTERFACE DO CARRINHO
+======================================================== */
+function atualizarUICarrinho(){
+  const itensEl = document.getElementById('carrinho-itens');
+  const totalEl = document.getElementById('carrinho-total');
+  const countEl = document.getElementById('cart-count');
+
+  itensEl.innerHTML = '';
+  let soma = 0;
+  let qtdTotal = 0;
+
+  if(carrinho.length === 0){
+    itensEl.innerHTML = "<p>Seu carrinho está vazio.</p>";
+  } else {
+    carrinho.forEach((p, idx)=>{
+      soma += p.price * p.qtd;
+      qtdTotal += p.qtd;
+
+      const div = document.createElement('div');
+      div.className = 'carrinho-item';
+
+      div.innerHTML = `
+        <div>
+          <strong>${p.title}</strong><br>
+          R$ ${p.price.toFixed(2)}
+        </div>
+
+        <div class="qtd-controle">
+          <button class="btn-qtd" data-acao="menos" data-idx="${idx}">-</button>
+          <span>${p.qtd}</span>
+          <button class="btn-qtd" data-acao="mais" data-idx="${idx}">+</button>
+          <button class="btn-remove" data-acao="remover" data-idx="${idx}">x</button>
+        </div>
+      `;
+
+      itensEl.appendChild(div);
+    });
+  }
+
+  totalEl.textContent = soma.toFixed(2);
+  countEl.textContent = qtdTotal;
+
+  itensEl.querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+
+      const idx = Number(btn.getAttribute("data-idx"));
+      const acao = btn.getAttribute("data-acao");
+
+      if(acao === "mais") carrinho[idx].qtd++;
+      if(acao === "menos"){
+        carrinho[idx].qtd--;
+        if(carrinho[idx].qtd <= 0){
+          carrinho.splice(idx, 1);
+        }
+      }
+      if(acao === "remover"){
+        carrinho.splice(idx,1);
+      }
+
+      atualizarUICarrinho();
+    });
+  });
+}
+
+/* ========================================================
+   ANIMAÇÃO
+======================================================== */
+function animarCarrinho(imgSrc, x, y){
+  const fly = document.createElement("img");
+  fly.src = imgSrc;
+  fly.className = "fly";
+  fly.style.left = x - 32 + "px";
+  fly.style.top = y - 32 + "px";
+  document.body.appendChild(fly);
+
+  const target = document.getElementById("abrir-carrinho");
+  const b = target.getBoundingClientRect();
+  const tx = b.left + b.width/2 - 32;
+  const ty = b.top + b.height/2 - 32;
+
+  requestAnimationFrame(()=>{
+    fly.style.left = tx+"px";
+    fly.style.top = ty+"px";
+    fly.style.transform = "scale(.28)";
+    fly.style.opacity = "0.8";
+  });
+
+  setTimeout(()=> fly.remove(), 800);
+}
+
+/* ========================================================
+   MOSTRAR PRODUTOS
+======================================================== */
+function mostrarProdutos(lista){
+  const container = document.getElementById("produto-card");
+  container.innerHTML = "";
+
+  if(!lista.length){
+    container.innerHTML = "<p>Nenhum produto encontrado.</p>";
+    return;
+  }
+
+  lista.forEach(prod=>{
+    const card = document.createElement("article");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${prod.thumbnail}" alt="${prod.title}" />
+      <h2>${prod.title}</h2>
+      <p>${prod.description}</p>
+      <div class="price">R$ ${prod.price.toFixed(2)}</div>
+      <div class="stars">${renderStars(prod.rating)}</div>
+      <button class="btn-comprar" data-id="${prod.id}" data-img="${prod.thumbnail}">
+        Adicionar ao Carrinho
+      </button>
+    `;
+
+    container.appendChild(card);
+  });
+
+  container.querySelectorAll(".btn-comprar").forEach(btn=>{
+    btn.addEventListener("click", (ev)=>{
+      const id = btn.getAttribute("data-id");
+      const img = btn.getAttribute("data-img");
+
+      animarCarrinho(img, ev.clientX, ev.clientY);
+
+      const existe = carrinho.find(p => p.id == id);
+
+      if(existe){
+        existe.qtd++;
+        atualizarUICarrinho();
+        return;
+      }
+
+      fetch(`https://dummyjson.com/products/${id}`)
+        .then(r=>r.json())
+        .then(p=>{
+          p.qtd = 1;
+          carrinho.push(p);
+          atualizarUICarrinho();
+        });
+    });
+  });
+}
+
+/* ========================================================
+   CARREGAR API
+======================================================== */
+fetch("https://dummyjson.com/products?limit=100")
+  .then(r => {
+    if (!r.ok) throw new Error("Erro ao buscar produtos");
+    return r.json();
+  })
+  .then(data => {
+    console.log('Resposta completa da API:', data); // For debugging
+    produtosCarregados = data.products;
+    mostrarProdutos(produtosCarregados);
+  })
+  .catch(err => {
+    console.error("Erro ao carregar produtos:", err);
+    document.getElementById("produto-card").innerHTML = "<p>❌ Erro ao carregar produtos.</p>";
+  });
+
+/* ========================================================
+   FILTRO
+======================================================== */
+document.getElementById("filtro").addEventListener("input", ()=>{
+  const termo = filtro.value.toLowerCase();
+  const f = produtosCarregados.filter(p=>
+    p.title.toLowerCase().includes(termo) ||
+    p.description.toLowerCase().includes(termo)
+  );
+  mostrarProdutos(f);
+});
+
+/* ========================================================
+   MODAL CARRINHO
+======================================================== */
+const modalCarrinho = document.getElementById("carrinho-modal");
+const modalPagamento = document.getElementById("pagamento-modal");
+
+document.getElementById("abrir-carrinho").addEventListener("click", ()=>{
+  modalCarrinho.style.display = "flex";
+  atualizarUICarrinho();
+});
+
+document.getElementById("fechar-modal").addEventListener("click", ()=>{
+  modalCarrinho.style.display = "none";
+});
+
+modalCarrinho.addEventListener("click",(e)=>{
+  if(e.target === modalCarrinho) modalCarrinho.style.display = "none";
+});
+
+/* ========================================================
+   TEMA ESCURO
+======================================================== */
+document.getElementById("theme-toggle").addEventListener("click", ()=>{
+  document.body.classList.toggle("dark");
+});
+
+/* ========================================================
+   FINALIZAR COMPRA
+======================================================== */
+document.getElementById("finalizar-compra").addEventListener("click", ()=>{
+  if(carrinho.length === 0){
+    alert("Carrinho vazio!");
+    return;
+  }
+  modalPagamento.style.display = "flex";
+});
+
+/* ========================================================
+   FECHAR PAGAMENTO
+======================================================== */
+document.getElementById("fechar-pagamento").addEventListener("click", ()=>{
+  modalPagamento.style.display = "none";
+});
+
+modalPagamento.addEventListener("click",(e)=>{
+  if(e.target === modalPagamento) modalPagamento.style.display = "none";
+});
+
+/* ========================================================
+   PAGAMENTO PIX
+======================================================== */
+document.getElementById("btn-pix").addEventListener("click", ()=>{
+  const total = document.getElementById("carrinho-total").textContent;
+  const payload = `Pagamento de R$ ${total}`;
+
+  const urlQR = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(payload)}`;
+
+  document.getElementById("qrcode-img").src = urlQR;
+
+  document.getElementById("area-qrcode").style.display = "block";
+  document.getElementById("area-cartao").style.display = "none";
+});
+
+/* ========================================================
+   PAGAMENTO CARTÃO
+======================================================== */
+const inputsCartao = [
+  document.getElementById("card-numero"),
+  document.getElementById("card-nome"),
+  document.getElementById("card-validade"),
+  document.getElementById("card-cvv")
+];
+
+function validarCartao(){
+  const ok = inputsCartao.every(i => i.value.trim() !== "");
+  document.getElementById("pagar-cartao").disabled = !ok;
+}
+
+inputsCartao.forEach(i => i.addEventListener("input", validarCartao));
+
+document.getElementById("btn-cartao").addEventListener("click", ()=>{
+  document.getElementById("area-qrcode").style.display = "none";
+  document.getElementById("area-cartao").style.display = "block";
+});
+
+/* ========================================================
+   CONFIRMAR PAGAMENTO COM CARTÃO
+======================================================== */
+document.getElementById("pagar-cartao").addEventListener("click", ()=>{
+
+  alert("Pagamento aprovado! Muito obrigado pela compra 😊");
+
+  // limpar carrinho
+  carrinho = [];
+  atualizarUICarrinho();
+
+  modalPagamento.style.display = "none";
+  modalCarrinho.style.display = "none";
+
+  // limpar formulário
+  inputsCartao.forEach(i => i.value = "");
+});
+
+})();
+</script>
+
+<footer>
+  © 2025 - Mercadooo • Todos os direitos reservados
+</footer>
+
+</body>
+</html>
